@@ -31,13 +31,8 @@ public class ProductServiceImpl implements ProductService {
     private UpYunConfig upYunConfig;
 
     @Override
-//    @Cacheable(key = "123")
     public ProductInfo findOne(String productId) {
         Optional<ProductInfo> productInfoOptional = repository.findById(productId);
-//        if (productInfoOptional.isPresent()) {
-//            return productInfoOptional.get().addImageHost(upYunConfig.getImageHost());
-//        }
-//        return null;
 
         productInfoOptional.ifPresent(e -> e.addImageHost(upYunConfig.getImageHost()));
         return productInfoOptional.orElse(null);
@@ -81,7 +76,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void decreaseStock(List<CartDTO> cartDTOList) {
         for (CartDTO cartDTO: cartDTOList) {
             ProductInfo productInfo = repository.findById(cartDTO.getProductId()).orElse(null);
