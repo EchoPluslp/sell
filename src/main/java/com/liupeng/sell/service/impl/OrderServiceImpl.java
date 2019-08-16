@@ -14,6 +14,7 @@ import com.liupeng.sell.repository.OrderDetailRepository;
 import com.liupeng.sell.repository.OrderMasterRepository;
 import com.liupeng.sell.service.OrderService;
 import com.liupeng.sell.service.ProductService;
+import com.liupeng.sell.service.WebSocket;
 import com.liupeng.sell.utils.KeyUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -53,8 +54,8 @@ public class OrderServiceImpl implements OrderService {
 //    @Autowired
 //    private PushMessageService pushMessageService;
 //
-//    @Autowired
-//    private WebSocket webSocket;
+    @Autowired
+    private WebSocket webSocket;
 
     @Override
     @Transactional
@@ -70,7 +71,6 @@ public class OrderServiceImpl implements OrderService {
             ProductInfo productInfo =  productService.findOne(orderDetail.getProductId());
             if (productInfo == null) {
                 throw new SellException(ResultEnum.PRODUCT_NOT_EXIST);
-//                throw new ResponseBankException();
             }
 
             //2. 计算订单总价
@@ -87,8 +87,6 @@ public class OrderServiceImpl implements OrderService {
 //            CartDTO cartDTO = new CartDTO(orderDetail.getProductId(), orderDetail.getProductQuantity());
 //            cartDTOList.add(cartDTO);
         }
-
-
         //3. 写入订单数据库（orderMaster和orderDetail）
         OrderMaster orderMaster = new OrderMaster();
         orderDTO.setOrderId(orderId);
@@ -105,7 +103,7 @@ public class OrderServiceImpl implements OrderService {
         productService.decreaseStock(cartDTOList);
 
 //        //发送websocket消息
-//        webSocket.sendMessage(orderDTO.getOrderId());
+        webSocket.sendMessage(orderDTO.getOrderId());
 
         return orderDTO;
     }
@@ -136,7 +134,7 @@ public class OrderServiceImpl implements OrderService {
 
         List<OrderDTO> orderDTOList = OrderMaster2OrderDTOConverter.convert(orderMasterPage.getContent());
 
-        return new PageImpl<OrderDTO>(orderDTOList, pageable, orderMasterPage.getTotalElements());
+        return new PageImpl<>(orderDTOList, pageable, orderMasterPage.getTotalElements());
     }
 
     @Override
