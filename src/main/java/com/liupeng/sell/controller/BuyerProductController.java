@@ -8,6 +8,7 @@ import com.liupeng.sell.dataObject.ProductInfo;
 import com.liupeng.sell.service.CategoryService;
 import com.liupeng.sell.service.ProductService;
 import com.liupeng.sell.utils.ResultVOUtil;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,13 +47,13 @@ public class BuyerProductController {
 
         //3. 数据拼装
         List<ProductVO> productVOList = new ArrayList<>();
-        for (ProductCategory productCategory: productCategoryList) {
+        for (ProductCategory productCategory : productCategoryList) {
             ProductVO productVO = new ProductVO();
             productVO.setCategoryType(productCategory.getCategoryType());
             productVO.setCategoryName(productCategory.getCategoryName());
 
             List<ProductInfoVO> productInfoVOList = new ArrayList<>();
-            for (ProductInfo productInfo: productInfoList) {
+            for (ProductInfo productInfo : productInfoList) {
                 if (productInfo.getCategoryType().equals(productCategory.getCategoryType())) {
                     ProductInfoVO productInfoVO = new ProductInfoVO();
                     BeanUtils.copyProperties(productInfo, productInfoVO);
@@ -62,7 +63,6 @@ public class BuyerProductController {
             productVO.setProductInfoVOList(productInfoVOList);
             productVOList.add(productVO);
         }
-
         return ResultVOUtil.success(productVOList);
     }
 }
