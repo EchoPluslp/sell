@@ -41,7 +41,7 @@ public class BuyerProductController {
 
         //精简方法(java8, lambda)
         List<Integer> categoryTypeList = productInfoList.stream()
-                .map(e -> e.getCategoryType())
+                .map(e -> e.getCategoryType()   )
                 .collect(Collectors.toList());
         List<ProductCategory> productCategoryList = categoryService.findByCategoryTypeIn(categoryTypeList);
 
