@@ -77,6 +77,7 @@ public class SellerProductController {
         map.put("url", "/sell/seller/product/list");
         return new ModelAndView("common/success", map);
     }
+
     /**
      * 商品下架
      * @param productId
