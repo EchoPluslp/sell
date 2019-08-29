@@ -12,9 +12,7 @@ import com.liupeng.sell.enums.ResultEnum;
 import com.liupeng.sell.exception.SellException;
 import com.liupeng.sell.repository.OrderDetailRepository;
 import com.liupeng.sell.repository.OrderMasterRepository;
-import com.liupeng.sell.service.OrderService;
-import com.liupeng.sell.service.ProductService;
-import com.liupeng.sell.service.WebSocket;
+import com.liupeng.sell.service.*;
 import com.liupeng.sell.utils.KeyUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -28,12 +26,11 @@ import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * @author liufeifei
  */
 @Service
 @Slf4j
@@ -48,12 +45,12 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderMasterRepository orderMasterRepository;
 
-//    @Autowired
-//    private PayService payService;
-//
-//    @Autowired
-//    private PushMessageService pushMessageService;
-//
+    @Autowired
+    private PayService payService;
+
+    @Autowired
+    private PushMessageService pushMessageService;
+
     @Autowired
     private WebSocket webSocket;
 
@@ -63,8 +60,6 @@ public class OrderServiceImpl implements OrderService {
 
         String orderId = KeyUtil.genUniqueKey();
         BigDecimal orderAmount = new BigDecimal(BigInteger.ZERO);
-
-//        List<CartDTO> cartDTOList = new ArrayList<>();
 
         //1. 查询商品（数量, 价格）
         for (OrderDetail orderDetail: orderDTO.getOrderDetailList()) {
@@ -84,9 +79,8 @@ public class OrderServiceImpl implements OrderService {
             BeanUtils.copyProperties(productInfo, orderDetail);
             orderDetailRepository.save(orderDetail);
 
-//            CartDTO cartDTO = new CartDTO(orderDetail.getProductId(), orderDetail.getProductQuantity());
-//            cartDTOList.add(cartDTO);
         }
+
         //3. 写入订单数据库（orderMaster和orderDetail）
         OrderMaster orderMaster = new OrderMaster();
         orderDTO.setOrderId(orderId);
@@ -167,10 +161,10 @@ public class OrderServiceImpl implements OrderService {
                 .collect(Collectors.toList());
         productService.increaseStock(cartDTOList);
 //
-//        //如果已支付, 需要退款
-//        if (orderDTO.getPayStatus().equals(PayStatusEnum.SUCCESS.getCode())) {
-//            payService.refund(orderDTO);
-//        }
+        //如果已支付, 需要退款
+        if (orderDTO.getPayStatus().equals(PayStatusEnum.SUCCESS.getCode())) {
+            payService.refund(orderDTO);
+        }
 
         return orderDTO;
     }
@@ -195,7 +189,7 @@ public class OrderServiceImpl implements OrderService {
         }
 //
 //        //推送微信模版消息
-//        pushMessageService.orderStatus(orderDTO);
+        pushMessageService.orderStatus(orderDTO);
 
         return orderDTO;
     }
